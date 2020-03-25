@@ -1,0 +1,39 @@
+{
+  "name": "",
+  "version": "0.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [],
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -p .",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run check"
+  },
+  "devDependencies": {
+    "gts": "^1.1.2",
+    "typescript": "~3.7.0",
+    "@types/node": "^10.0.3"
+  },
+  "dependencies": {
+    "@nervosnetwork/ckb-sdk-core": "^0.30.0",
+    "@nervosnetwork/ckb-sdk-utils": "^0.30.0",
+    "dotenv": "^8.2.0",
+    "eth-lib": "^0.1.29",
+    "eth-sig-util": "^2.5.3",
+    "ethereum-private-key-to-address": "0.0.3",
+    "ethereumjs-util": "^6.2.0",
+    "web3-eth-accounts": "^1.2.6",
+    "web3-utils": "^1.2.6"
+  }
+}
