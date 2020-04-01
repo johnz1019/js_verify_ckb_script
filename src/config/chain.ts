@@ -3,11 +3,16 @@ import './env';
 
 const privateKey1: string = process.env.PRIVATE_KEY_1 || '';
 const privateKey2: string = process.env.PRIVATE_KEY_2 || '';
+const privateKey3: string = process.env.PRIVATE_KEY_3 || '';
+const privateKey4: string = process.env.PRIVATE_KEY_4 || '';
 
 const deployPubkeyHash: string = process.env.DEPLOY_PUBKEY_HASH || '';
 
 const blockAssemblerCode =
   '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8';
+
+const multiSigTypeId =
+  '0x5c5069eb0857efc65e1bca0c07df34c31663b3622fd3876c876320fc9634e2a8';
 
 const upgradableCell = {
   codeHash:
@@ -74,10 +79,13 @@ const simpleOtxLock = {
 
 export {
   blockAssemblerCode,
+  multiSigTypeId,
   upgradableCell,
   keccak256LockCell,
   keyBoundLock,
   simpleOtxLock,
   privateKey1,
   privateKey2,
+  privateKey3,
+  privateKey4,
 };

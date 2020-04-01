@@ -14,7 +14,7 @@ import blake160 from '@nervosnetwork/ckb-sdk-utils/lib/crypto/blake160';
 
 import * as EthLib from 'eth-lib';
 import { extractPublicKey } from 'eth-sig-util';
-import { Secp256Keccak } from './lock/scep256Keccak';
+import { Secp256Keccak } from './lock/secp256Keccak';
 import { SimpleOtx } from './lock/simpleOtx';
 
 const ckb = new CKB(process.env.NODE_URL);

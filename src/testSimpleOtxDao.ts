@@ -502,14 +502,16 @@ async function sendCKBToUser(privateKey: string, toAddress: string) {
 }
 
 async function test() {
-  // issue a key
+  // step 1. issue a key
   // await issueKeyAndDepositDao(chain.privateKey1);
 
   // await sendCKBToUser(chain.privateKey1, address2);
+  // step 2. exchange key with simpleOtx
   // const simpleOtx = await bidKey(chain.privateKey1, keyCapacity * 2);
   // console.log('simpleOtx', JSON.stringify(simpleOtx));
   // await buyKey(simpleOtx, address1, 2 * keyCapacity, chain.privateKey2);
 
+  //step3. unlock
   await unlockAsset(chain.privateKey2);
 }
 
