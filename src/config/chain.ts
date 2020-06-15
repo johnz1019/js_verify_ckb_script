@@ -1,5 +1,6 @@
 /* eslint-disable */
 import './env';
+import { numberToHex } from 'web3-utils';
 
 const privateKey1: string = process.env.PRIVATE_KEY_1 || '';
 const privateKey2: string = process.env.PRIVATE_KEY_2 || '';
@@ -8,22 +9,25 @@ const privateKey4: string = process.env.PRIVATE_KEY_4 || '';
 
 const deployPubkeyHash: string = process.env.DEPLOY_PUBKEY_HASH || '';
 
-const blockAssemblerCode =
-  '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8';
+const blockAssemblerCode = '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8';
 
-const multiSigTypeId =
-  '0x5c5069eb0857efc65e1bca0c07df34c31663b3622fd3876c876320fc9634e2a8';
+const multiSigTypeId = '0x5c5069eb0857efc65e1bca0c07df34c31663b3622fd3876c876320fc9634e2a8';
 
 const upgradableCell = {
-  codeHash:
-    '0xffa8b87211aeca8237677e057adf45cf97e3e1726a2d160817d1d665be5ee340',
+  codeHash: '0xffa8b87211aeca8237677e057adf45cf97e3e1726a2d160817d1d665be5ee340',
   outPoint: {
     txHash: process.env.UPGRADABLE_CELL_TXHASH || '',
     index: '0x0',
   },
 };
+export interface MyCellInfo {
+  type: CKBComponents.Script;
+  lock: CKBComponents.Script;
+  capacity: string;
+  outPoint: CKBComponents.OutPoint;
+}
 
-const keccak256LockCell = {
+const keccak256LockCell: MyCellInfo = {
   type: {
     codeHash: upgradableCell.codeHash,
     hashType: 'data',
@@ -34,14 +38,32 @@ const keccak256LockCell = {
     hashType: 'type',
     args: deployPubkeyHash,
   },
-  capacity: 150000 * 10 ** 8,
+  capacity: numberToHex(150000 * 10 ** 8),
   outPoint: {
     txHash: process.env.KECCAK256_TXHASH || '',
     index: '0x0',
   },
 };
 
-const keyBoundLock = {
+const sep256R1LockCell: MyCellInfo = {
+  type: {
+    codeHash: upgradableCell.codeHash,
+    hashType: 'data',
+    args: process.env.SECP256R1_ARG || '',
+  },
+  lock: {
+    codeHash: blockAssemblerCode,
+    hashType: 'type',
+    args: deployPubkeyHash,
+  },
+  capacity: numberToHex(150000 * 10 ** 8),
+  outPoint: {
+    txHash: process.env.SECP256R1_TXHASH || '',
+    index: '0x0',
+  },
+};
+
+const keyBoundLock: MyCellInfo = {
   type: {
     codeHash: upgradableCell.codeHash,
     hashType: 'data',
@@ -52,14 +74,14 @@ const keyBoundLock = {
     hashType: 'type',
     args: deployPubkeyHash,
   },
-  capacity: 30000 * 10 ** 8,
+  capacity: numberToHex(30000 * 10 ** 8),
   outPoint: {
     txHash: process.env.KE_BOUND_TXHASH || '',
     index: '0x0',
   },
 };
 
-const simpleOtxLock = {
+const simpleOtxLock: MyCellInfo = {
   type: {
     codeHash: upgradableCell.codeHash,
     hashType: 'data',
@@ -70,7 +92,7 @@ const simpleOtxLock = {
     hashType: 'type',
     args: deployPubkeyHash,
   },
-  capacity: 150000 * 10 ** 8,
+  capacity: numberToHex(150000 * 10 ** 8),
   outPoint: {
     txHash: process.env.SIMPLE_OTX_TXHASH || '',
     index: '0x0',
@@ -82,6 +104,7 @@ export {
   multiSigTypeId,
   upgradableCell,
   keccak256LockCell,
+  sep256R1LockCell,
   keyBoundLock,
   simpleOtxLock,
   privateKey1,

@@ -1,4 +1,14 @@
-// import './testDeployer';
+
+
+```
+cp example.env .env
+```
+
+1. deploy lock script one by one
+
+index.ts
+```
+import './testDeployer';
 
 // import './testKeccak';
 // import './testKeyBoundOwnership';
@@ -6,8 +16,7 @@
 // import './testSimpleOtx2';
 // import './testSimpleOtxDao';
 
-// import './testMultiSig';
+```
 
-// import './testAnyoneCanPay';
 
-import './testSecp256R1Sha256';
+2. testSimpleOtxDao

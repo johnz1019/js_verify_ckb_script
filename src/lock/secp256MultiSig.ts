@@ -29,8 +29,7 @@ export interface MultiSigScript {
 }
 
 export function multiSigScriptToString(script: MultiSigScript): string {
-  const toHex = (x: number) =>
-    web3Utils.padLeft(web3Utils.numberToHex(x), 2).substr(2);
+  const toHex = (x: number) => web3Utils.padLeft(web3Utils.numberToHex(x), 2).substr(2);
   const { s, r, m, n } = script.flag;
   const sHex = toHex(s);
   const rHex = toHex(r);
@@ -49,9 +48,7 @@ export function multiSigScriptToString(script: MultiSigScript): string {
   return scriptStr;
 }
 
-export function multiSigScriptToAddress(
-  multiSigScript: MultiSigScript
-): string {
+export function multiSigScriptToAddress(multiSigScript: MultiSigScript): string {
   const scriptStr = multiSigScriptToString(multiSigScript);
   console.log(`multiSigScript is ${scriptStr}`);
   const args = '0x' + blake160(scriptStr, 'hex');
@@ -82,9 +79,7 @@ export class Secp256MultiSig {
     /* eslint-enable prettier/prettier, no-undef */
 
     if (!secp256k1DepTxHash) {
-      throw new Error(
-        'Cannot load the transaction which has the secp256k1 dep cell'
-      );
+      throw new Error('Cannot load the transaction which has the secp256k1 dep cell');
     }
 
     if (!typeScript) {
@@ -104,11 +99,7 @@ export class Secp256MultiSig {
     return secp256k1MultiDep;
   }
 
-  signTransaction(
-    rawTransaction: CKBComponents.RawTransactionToSign,
-    multiSigScript: MultiSigScript,
-    keys: string[]
-  ) {
+  signTransaction(rawTransaction: CKBComponents.RawTransactionToSign, multiSigScript: MultiSigScript, keys: string[]) {
     if (keys.length < multiSigScript.flag.m) {
       throw new Error(
         `the count ot keys ${keys.length} is less than multisig script threshold ${multiSigScript.flag.m}`
@@ -121,30 +112,20 @@ export class Secp256MultiSig {
 
     const emptyWitness = {
       ...(rawTransaction.witnesses[0] as CKBComponents.WitnessArgs),
-      lock: scriptStr + `${'0'.repeat(130 * keys.length)}`,
+      lock: scriptStr + `${'0'.repeat(130 * multiSigScript.flag.m)}`,
     };
 
-    const serializedEmptyWitnessBytes = hexToBytes(
-      serializeWitnessArgs(emptyWitness)
-    );
+    const serializedEmptyWitnessBytes = hexToBytes(serializeWitnessArgs(emptyWitness));
     const serialziedEmptyWitnessSize = serializedEmptyWitnessBytes.length;
 
     const s = blake2b(32, null, null, PERSONAL);
     s.update(hexToBytes(transactionHash));
-    s.update(
-      hexToBytes(
-        toHexInLittleEndian(`0x${serialziedEmptyWitnessSize.toString(16)}`, 8)
-      )
-    );
+    s.update(hexToBytes(toHexInLittleEndian(`0x${serialziedEmptyWitnessSize.toString(16)}`, 8)));
     s.update(serializedEmptyWitnessBytes);
 
     rawTransaction.witnesses.slice(1).forEach(w => {
-      const bytes = hexToBytes(
-        typeof w === 'string' ? w : serializeWitnessArgs(w)
-      );
-      s.update(
-        hexToBytes(toHexInLittleEndian(`0x${bytes.length.toString(16)}`, 8))
-      );
+      const bytes = hexToBytes(typeof w === 'string' ? w : serializeWitnessArgs(w));
+      s.update(hexToBytes(toHexInLittleEndian(`0x${bytes.length.toString(16)}`, 8)));
       s.update(bytes);
     });
 
@@ -157,10 +138,7 @@ export class Secp256MultiSig {
     }
     emptyWitness.lock = scriptStr + sigs.map(x => x.replace('0x', '')).join('');
 
-    const signedWitnesses = [
-      serializeWitnessArgs(emptyWitness),
-      ...rawTransaction.witnesses.slice(1),
-    ];
+    const signedWitnesses = [serializeWitnessArgs(emptyWitness), ...rawTransaction.witnesses.slice(1)];
 
     const tx = {
       ...rawTransaction,

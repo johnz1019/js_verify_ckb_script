@@ -15,10 +15,7 @@ import { serializeInput } from '@nervosnetwork/ckb-sdk-utils/lib/serialization/t
 import { numberToHex } from 'web3-utils';
 
 const ckb = new CKB(process.env.NODE_URL);
-const pubKeyHash = `0x${blake160(
-  privateKeyToPublicKey(chain.privateKey1),
-  'hex'
-)}`;
+const pubKeyHash = `0x${blake160(privateKeyToPublicKey(chain.privateKey1), 'hex')}`;
 
 console.log('pubKeyHash is', pubKeyHash);
 
@@ -108,8 +105,7 @@ async function issueKeyAndAsset(privateKey: string) {
 }
 
 const keyCapacity = 200 * 10 ** 8;
-const keyTxHash =
-  '0xc2c7668d27b9bc46c50e3607fe8f7db73eb16c168093246ac4bcaca379f0a303';
+const keyTxHash = '0xc2c7668d27b9bc46c50e3607fe8f7db73eb16c168093246ac4bcaca379f0a303';
 
 const keyOutPoint = {
   txHash: keyTxHash,
@@ -117,8 +113,7 @@ const keyOutPoint = {
 };
 
 const assetCapacity = 200 * 10 ** 8;
-const assetTxHash =
-  '0xce42bb4daec00e29af3c997090a4db8b255ea32b5ba747df2823d2fb7274812f';
+const assetTxHash = '0xce42bb4daec00e29af3c997090a4db8b255ea32b5ba747df2823d2fb7274812f';
 const assetOutPoint = {
   txHash: assetTxHash,
   index: '0x1',
@@ -127,8 +122,7 @@ const assetOutPoint = {
 const keyTypeScript: CKBComponents.Script = {
   codeHash: chain.upgradableCell.codeHash,
   hashType: 'data',
-  args:
-    '0x00000000000000002e444a846c54b079af7b2b9399ac3cbfc371196d2e93d464bb3c46886e2c9ee800000000',
+  args: '0x00000000000000002e444a846c54b079af7b2b9399ac3cbfc371196d2e93d464bb3c46886e2c9ee800000000',
 };
 const assetLockArgs = scriptToHash(keyTypeScript);
 

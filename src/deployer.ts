@@ -1,16 +1,10 @@
 import * as fs from 'fs';
 import CKB from '@nervosnetwork/ckb-sdk-core';
 import * as Config from './config/chain';
-import {
-  privateKeyToAddress,
-  AddressPrefix,
-  PERSONAL,
-  hexToBytes,
-  AddressType,
-} from '@nervosnetwork/ckb-sdk-utils';
+import { privateKeyToAddress, AddressPrefix, PERSONAL, hexToBytes, AddressType } from '@nervosnetwork/ckb-sdk-utils';
 import blake2b from '@nervosnetwork/ckb-sdk-utils/lib/crypto/blake2b';
 import { serializeInput } from '@nervosnetwork/ckb-sdk-utils/lib/serialization/transaction';
-import { numberToHex } from 'web3-utils';
+import { numberToHex, hexToNumber } from 'web3-utils';
 
 export class Deployer {
   private ckb: CKB;
@@ -19,12 +13,7 @@ export class Deployer {
   private address: string;
   private secp256k1Dep: DepCellInfo;
 
-  constructor(
-    ckb: CKB,
-    privKey: string,
-    pubkeyHash: string,
-    secp256k1Dep: DepCellInfo
-  ) {
+  constructor(ckb: CKB, privKey: string, pubkeyHash: string, secp256k1Dep: DepCellInfo) {
     this.ckb = ckb;
     this.privKey = privKey;
     this.pubkeHash = pubkeyHash;
@@ -36,11 +25,7 @@ export class Deployer {
     });
   }
 
-  buildDeployScriptTx(
-    capacity: number,
-    data: string,
-    unspentCells: CachedCell[]
-  ): CKBComponents.RawTransactionToSign {
+  buildDeployScriptTx(capacity: number, data: string, unspentCells: CachedCell[]): CKBComponents.RawTransactionToSign {
     console.log('unspent cell length', unspentCells.length);
 
     const rawTransaction = this.ckb.generateRawTransaction({
@@ -54,11 +39,7 @@ export class Deployer {
     });
 
     rawTransaction.witnesses = rawTransaction.inputs.map(() => '0x');
-    rawTransaction.witnesses[0] = {
-      lock: '',
-      inputType: '',
-      outputType: '',
-    };
+    rawTransaction.witnesses[0] = { lock: '', inputType: '', outputType: '' };
     rawTransaction.outputsData[0] = data;
 
     // set cell to no one can unlocked
@@ -71,12 +52,7 @@ export class Deployer {
     return rawTransaction;
   }
 
-  async deployScript(
-    filePath: string,
-    capacity: number,
-    unspentCells: CachedCell[],
-    withType: boolean
-  ) {
+  async deployScript(filePath: string, capacity: number, unspentCells: CachedCell[], withType: boolean) {
     const data = fs.readFileSync(filePath);
     const s = blake2b(32, null, null, PERSONAL);
     s.update(hexToBytes('0x' + data.toString('hex')));
@@ -84,11 +60,7 @@ export class Deployer {
     console.log('code_hash', codeHash);
     console.log('data', data.toString('hex').length);
 
-    const rawTransaction = this.buildDeployScriptTx(
-      capacity,
-      '0x' + data.toString('hex'),
-      unspentCells
-    );
+    const rawTransaction = this.buildDeployScriptTx(capacity, '0x' + data.toString('hex'), unspentCells);
 
     if (withType) {
       const args = serializeInput(rawTransaction.inputs[0]);
@@ -101,10 +73,7 @@ export class Deployer {
       };
 
       rawTransaction.cellDeps.push({
-        outPoint: {
-          txHash: Config.upgradableCell.outPoint.txHash,
-          index: '0x0',
-        },
+        outPoint: { txHash: Config.upgradableCell.outPoint.txHash, index: '0x0' },
         depType: 'code',
       });
     }
@@ -114,7 +83,7 @@ export class Deployer {
     console.log(`The real transaction hash is: ${realTxHash}`);
   }
 
-  async upgradeScript(lockCell: CachedCell, filePath: string) {
+  async upgradeScript(unspentCells: CachedCell[], oldCell: Config.MyCellInfo, filePath: string) {
     const data = fs.readFileSync(filePath);
 
     const s = blake2b(32, null, null, PERSONAL);
@@ -123,50 +92,32 @@ export class Deployer {
     console.log('updated_code_hash', codeHash);
     console.log('data', data.toString('hex').length);
 
-    const unspentCells = [
-      {
-        blockHash: '',
-        lock: lockCell.lock,
-        outPoint: lockCell.outPoint,
-        outputDataLen: '0x0',
-        capacity: lockCell.capacity,
-        cellbase: false,
-        type: lockCell.type,
-        dataHash:
-          '0x0000000000000000000000000000000000000000000000000000000000000000',
-        status: 'live',
-      },
-    ];
-
-    const capacity: CKBComponents.Capacity = numberToHex(
-      Number(lockCell.capacity) - 100 * 10 ** 8
-    );
-
     const rawTransaction = this.ckb.generateRawTransaction({
       fromAddress: this.address,
       toAddress: this.address,
-      capacity,
+      capacity: '0x0',
       fee: BigInt(100000),
-      safeMode: false,
+      safeMode: true,
       cells: unspentCells,
       deps: this.secp256k1Dep,
+      capacityThreshold: '0x0',
     });
+    rawTransaction.outputs.splice(0, 1);
+    rawTransaction.outputsData.splice(0, 1);
+
+    rawTransaction.inputs.unshift({ previousOutput: oldCell.outPoint, since: '0x0' });
+    rawTransaction.outputs.unshift({
+      capacity: oldCell.capacity,
+      lock: oldCell.lock,
+      type: oldCell.type,
+    });
+    rawTransaction.outputsData.unshift('0x' + data.toString('hex'));
 
     rawTransaction.witnesses = rawTransaction.inputs.map(() => '0x');
-    rawTransaction.witnesses[0] = {
-      lock: '',
-      inputType: '',
-      outputType: '',
-    };
-    rawTransaction.outputsData[0] = '0x' + data.toString('hex');
-
-    rawTransaction.outputs[0].type = unspentCells[0].type;
+    rawTransaction.witnesses[0] = { lock: '', inputType: '', outputType: '' };
 
     rawTransaction.cellDeps.push({
-      outPoint: {
-        txHash: Config.upgradableCell.outPoint.txHash,
-        index: '0x0',
-      },
+      outPoint: { txHash: Config.upgradableCell.outPoint.txHash, index: '0x0' },
       depType: 'code',
     });
     console.log(JSON.stringify(rawTransaction));
